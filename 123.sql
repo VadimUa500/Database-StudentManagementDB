@@ -1,11 +1,5 @@
--- Створюємо нову базу даних
 CREATE DATABASE StudentManagementDBa;
-
--- Використовуємо створену базу даних
 USE StudentManagementDBa;
-
-
--- Створення таблиці для студентів
 CREATE TABLE Student (
     STUDENT_ID INT NOT NULL PRIMARY KEY,
     STUDENT_NAME VARCHAR(100) NOT NULL,
@@ -14,7 +8,6 @@ CREATE TABLE Student (
     STUDENT_ADDRESS VARCHAR(150) NOT NULL
 );
 
--- Створення таблиці для курсів
 CREATE TABLE Course (
     COURSE_ID INT NOT NULL PRIMARY KEY,
     COURSE_NAME VARCHAR(100) NOT NULL,
@@ -22,7 +15,6 @@ CREATE TABLE Course (
     COURSE_DESCRIPTION TEXT NOT NULL
 );
 
--- Створення таблиці для реєстрацій студентів на курси
 CREATE TABLE Enrollment (
     ENROLLMENT_ID INT NOT NULL PRIMARY KEY,
     STUDENT_ID INT,
@@ -32,7 +24,6 @@ CREATE TABLE Enrollment (
     FOREIGN KEY (COURSE_ID) REFERENCES Course(COURSE_ID) ON DELETE CASCADE
 );
 
--- Створення таблиці для оцінок студентів
 CREATE TABLE Grade (
     GRADE_ID INT NOT NULL PRIMARY KEY,
     ENROLLMENT_ID INT,
@@ -41,7 +32,6 @@ CREATE TABLE Grade (
     FOREIGN KEY (ENROLLMENT_ID) REFERENCES Enrollment(ENROLLMENT_ID) ON DELETE CASCADE
 );
 
--- Створення таблиці для викладачів
 CREATE TABLE Instructor (
     INSTRUCTOR_ID INT NOT NULL PRIMARY KEY,
     INSTRUCTOR_NAME VARCHAR(100) NOT NULL,
@@ -50,7 +40,6 @@ CREATE TABLE Instructor (
     INSTRUCTOR_ADDRESS VARCHAR(150) NOT NULL
 );
 
--- Створення таблиці для зв'язку курсів та викладачів
 CREATE TABLE CourseInstructor (
     COURSE_INSTRUCTOR_ID INT NOT NULL PRIMARY KEY,
     INSTRUCTOR_ID INT,
@@ -60,8 +49,6 @@ CREATE TABLE CourseInstructor (
     FOREIGN KEY (COURSE_ID) REFERENCES Course(COURSE_ID) ON DELETE CASCADE
 );
 
-
--- Вставка прикладів даних для курсів
 INSERT INTO Course (COURSE_ID, COURSE_NAME, COURSE_CODE, COURSE_DESCRIPTION)
 VALUES 
     (1, 'Штучний інтелект та методи машинного навчання', 'AI101', 'Основи штучного інтелекту та методи машинного навчання'),
@@ -70,7 +57,6 @@ VALUES
     (4, 'Основи програмування', 'CS104', 'Вивчення основ програмування на мові C++'),
     (5, 'Теорія ймовірності', 'MATH201', 'Основи теорії ймовірностей та статистики');
 
--- Вставка прикладів даних для студентів
 INSERT INTO Student (STUDENT_ID, STUDENT_NAME, STUDENT_EMAIL, STUDENT_PHONE, STUDENT_ADDRESS)
 VALUES 
     (1, 'Олександр Бугайчук', 'obuhaichuk@rcit.ukr.education', '0684305528', 'вул. Орлова 40'),
@@ -106,7 +92,7 @@ VALUES
     (23, 5, 3, '2024-09-01'),
     (24, 5, 4, '2024-09-01'),
     (25, 5, 5, '2024-09-01');
-    -- Вставка прикладів даних для оцінок студентів за всі курси
+
 INSERT INTO Grade (GRADE_ID, ENROLLMENT_ID, GRADE, EXAM_DATE)
 VALUES 
     (1, 1, 85.50, '2024-12-01'),
@@ -135,7 +121,6 @@ VALUES
     (24, 24, 84.50, '2024-12-04'),
     (25, 25, 92.00, '2024-12-05');
 
--- Вставка прикладів даних для викладачів
 INSERT INTO Instructor (INSTRUCTOR_ID, INSTRUCTOR_NAME, INSTRUCTOR_EMAIL, INSTRUCTOR_PHONE, INSTRUCTOR_ADDRESS)
 VALUES 
     (1, 'Михайло Бойко', 'm.v.boiko@rcit.ukr.education ', '0671234567', 'вул. Науки 5'),
@@ -144,8 +129,6 @@ VALUES
     (4, 'Олександр Шпортько', 'oshportko@rcit.ukr.education ', '0679940369', 'вул. Студентська 2'),
     (5, 'Данило Лагоднюк', 'd.o.lahodniuk@rcit.ukr.education', '0997304391', 'вул. Петра 3');
     
-
--- Вставка прикладів даних для викладачів на курсах
 INSERT INTO CourseInstructor (COURSE_INSTRUCTOR_ID, INSTRUCTOR_ID, COURSE_ID, ASSIGNMENT_DATE)
 VALUES 
     (1, 1, 1, '2024-09-01'),
@@ -158,10 +141,6 @@ SELECT * FROM Student;
 SELECT * FROM Instructor;
 SELECT * FROM Course;
 
-
-
-
--- 1. Інформація про студентів та їх курси
 SELECT 
     Student.STUDENT_NAME,
     MAX(CASE WHEN Course.COURSE_NAME = 'Штучний інтелект та методи машинного навчання' THEN Course.COURSE_NAME END) AS 'Курс 1',
@@ -175,27 +154,22 @@ JOIN Enrollment ON Student.STUDENT_ID = Enrollment.STUDENT_ID
 JOIN Course ON Enrollment.COURSE_ID = Course.COURSE_ID
 GROUP BY Student.STUDENT_NAME;
 
-
--- 2. Оцінки студентів
 SELECT Student.STUDENT_NAME, Course.COURSE_NAME, Grade.GRADE, Grade.EXAM_DATE
 FROM Student
 JOIN Enrollment ON Student.STUDENT_ID = Enrollment.STUDENT_ID
 JOIN Course ON Enrollment.COURSE_ID = Course.COURSE_ID
 JOIN Grade ON Enrollment.ENROLLMENT_ID = Grade.ENROLLMENT_ID;
 
--- 3. Викладачі, які ведуть курси
 SELECT Instructor.INSTRUCTOR_NAME, Course.COURSE_NAME
 FROM Instructor
 JOIN CourseInstructor ON Instructor.INSTRUCTOR_ID = CourseInstructor.INSTRUCTOR_ID
 JOIN Course ON CourseInstructor.COURSE_ID = Course.COURSE_ID;
 
--- 4. Студент з певною оцінкою
 SELECT STUDENT_NAME, GRADE FROM Student
 JOIN Enrollment ON Student.STUDENT_ID = Enrollment.STUDENT_ID
 JOIN Grade ON Enrollment.ENROLLMENT_ID = Grade.ENROLLMENT_ID
 WHERE GRADE > 85;
 
--- 5. Середній бал для кожного студента
 SELECT Student.STUDENT_NAME, 
        AVG(Grade.GRADE) AS AVERAGE_GRADE
 FROM Student
@@ -203,7 +177,7 @@ JOIN Enrollment ON Student.STUDENT_ID = Enrollment.STUDENT_ID
 JOIN Grade ON Enrollment.ENROLLMENT_ID = Grade.ENROLLMENT_ID
 GROUP BY Student.STUDENT_NAME
 ORDER BY AVERAGE_GRADE DESC;
--- Запит для знаходження найбільш популярного курсу за оцінками
+
 SELECT Course.COURSE_NAME, 
        COUNT(Enrollment.ENROLLMENT_ID) AS STUDENT_COUNT, 
        AVG(Grade.GRADE) AS AVERAGE_GRADE
@@ -214,9 +188,6 @@ GROUP BY Course.COURSE_NAME
 ORDER BY AVERAGE_GRADE DESC, STUDENT_COUNT DESC
 LIMIT 5;
 
-
-
--- Індивідуальні оцінки студентів по курсу
 SELECT 
     Course.COURSE_NAME, 
     MAX(CASE WHEN Student.STUDENT_NAME = 'Олександр Бугайчук' THEN Grade.GRADE END) AS "Олександр Бугайчук",
@@ -231,14 +202,9 @@ JOIN Student ON Enrollment.STUDENT_ID = Student.STUDENT_ID
 JOIN Grade ON Enrollment.ENROLLMENT_ID = Grade.ENROLLMENT_ID
 GROUP BY Course.COURSE_NAME;
 
-
-
-
-
-
 DROP PROCEDURE IF EXISTS GradeEvaluation;
 DELIMITER $$
--- Оцінка_студентів_за_критеріями
+
 SELECT 
     Course.COURSE_NAME,
     Student.STUDENT_NAME,
@@ -254,10 +220,6 @@ JOIN Enrollment ON Student.STUDENT_ID = Enrollment.STUDENT_ID
 JOIN Grade ON Enrollment.ENROLLMENT_ID = Grade.ENROLLMENT_ID
 JOIN Course ON Enrollment.COURSE_ID = Course.COURSE_ID
 ORDER BY Course.COURSE_NAME, Grade.GRADE DESC;
-
 END $$
-
 DELIMITER ;
-
--- Виклик процедури для оцінки студентів
 CALL GradeEvaluation();
